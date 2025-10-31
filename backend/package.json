@@ -1,0 +1,17 @@
+{
+  "name": "nextecg-backend",
+  "version": "1.0.0",
+  "description": "WebSocket server for Arduino ECG data streaming",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "list-ports": "node list-ports.js"
+  },
+  "keywords": ["arduino", "ecg", "websocket", "serialport"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "serialport": "^12.0.0",
+    "ws": "^8.18.0"
+  }
+}
