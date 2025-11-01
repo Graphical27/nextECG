@@ -132,9 +132,12 @@ The same Arduino code works for both Chords and NextECG dashboard!
 ```cpp
 // backend/arduino_ecg_simulator.ino
 
+#define BOARD_NANO_CLONE       // choose Nano/Uno/Mega as needed
+// #define BOARD_UNO_R3
+// #define BOARD_MEGA_2560_R3
+
+#define ENABLE_SIMULATION 0    // 1 = built-in ECG waveform
 #define SAMPLE_RATE 250        // Hz (125, 250, or 500)
-#define OUTPUT_FORMAT 2        // 1=single, 2=labeled, 3=multi-channel
-bool useRealSensor = false;    // true for real ECG sensor
 ```
 
 ### Backend Settings

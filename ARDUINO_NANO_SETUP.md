@@ -84,9 +84,15 @@
 
 2. **Configure Settings** (top of file):
    ```cpp
-   #define OUTPUT_FORMAT 2  // Chords-compatible labeled format
-   bool useRealSensor = false;  // true if using real ECG sensor
+   #define BOARD_NANO_CLONE    // uncomment the board you are using
+   // #define BOARD_NANO_CLASSIC
+   // #define BOARD_UNO_R3
+   // #define BOARD_MEGA_2560_R3
+
+   #define ENABLE_SIMULATION 0 // set to 1 for the built-in ECG waveform
    ```
+   - Leave `ENABLE_SIMULATION` at `0` for real sensors (AD8232, BioAmp, etc.).
+   - Set `ENABLE_SIMULATION` to `1` to generate a software ECG for demos.
 
 3. **Verify Code**: Click ✓ (Verify) button
    - Should say: "Done compiling"
@@ -96,17 +102,14 @@
    - Success: "Done uploading"
 
 5. **Test Output**:
-   - Open: `Tools > Serial Monitor`
-   - Set baud rate: **115200**
-   - You should see:
-     ```
-     # Arduino Nano ECG - Chords Compatible
-     # Sample Rate: 250 Hz
-     ECG:512
-     ECG:530
-     ECG:700
-     ...
-     ```
+    - Open: `Tools > Serial Monitor`
+    - Set baud rate: **115200**
+    - Expected handshake:
+       ```
+       NANO-CLONE
+       RUNNING
+       ```
+    - After `RUNNING` the stream switches to Chords **binary packets**, so any extra characters will look like gibberish—this is normal. Close the Serial Monitor before starting the backend.
 
 ---
 
@@ -116,9 +119,11 @@
 
 Chords is a serial plotter application by **Upside Down Labs** designed for visualizing bioelectric signals (ECG, EMG, EEG, etc.) in real-time.
 
-### Supported Data Formats
+> **2025 firmware update**: The Arduino sketch now streams the official Chords binary packet (sync bytes `0xC7 0x7C`, counter, eight 10-bit channels, `0x01` terminator). Chords auto-detects the packet structure, so no `OUTPUT_FORMAT` setting is required. The legacy text formats documented below are retained for reference when working with older firmware.
 
-Our Arduino code supports **three output formats** compatible with Chords:
+### Supported Data Formats (legacy reference)
+
+If you revert to the pre-2025 text-based sketch, these were the three serial formats controlled by `OUTPUT_FORMAT`. The default firmware now streams the binary packet described above, so treat the notes below as historical context only:
 
 #### Format 1: Single Value
 ```
@@ -127,7 +132,7 @@ Our Arduino code supports **three output formats** compatible with Chords:
 700
 ```
 - **Use case**: Simplest format, single channel
-- **Set**: `#define OUTPUT_FORMAT 1`
+- **Legacy switch**: `#define OUTPUT_FORMAT 1`
 
 #### Format 2: Labeled (Recommended)
 ```
@@ -136,7 +141,7 @@ ECG:530
 ECG:700
 ```
 - **Use case**: Best for Chords, self-documenting
-- **Set**: `#define OUTPUT_FORMAT 2`
+- **Legacy switch**: `#define OUTPUT_FORMAT 2`
 
 #### Format 3: Multi-Channel
 ```
@@ -146,7 +151,7 @@ ECG:700
 ```
 - **Use case**: Multiple channels (ECG + others)
 - **Format**: `ECG LeadsOff Reserved`
-- **Set**: `#define OUTPUT_FORMAT 3`
+- **Legacy switch**: `#define OUTPUT_FORMAT 3`
 
 ### Using with Chords Serial Plotter
 
@@ -339,7 +344,7 @@ ECG: 530
 ```
 Arduino Nano (ECG Sensor)
     ↓ USB Serial @ 115200 baud
-    ↓ Format: "ECG:512\n"
+   ↓ Format: Chords binary packet (0xC7 0x7C … 0x01)
 Node.js Backend (server.js)
     ↓ Parse serial data
     ↓ Calculate vitals (HR, etc.)
@@ -369,16 +374,16 @@ In Arduino code:
 
 **Note:** Backend auto-adapts to any rate.
 
-### Change Serial Format
+### Board & Simulation Options
 
 ```cpp
-#define OUTPUT_FORMAT 2
+#define BOARD_NANO_CLONE
+#define ENABLE_SIMULATION 0
 ```
 
-**Options:**
-- `1`: Single value (Arduino Serial Plotter)
-- `2`: Labeled (Chords, recommended)
-- `3`: Multi-channel (advanced)
+- Uncomment the `BOARD_*` macro that matches your hardware (Nano, Uno, Mega).
+- Set `ENABLE_SIMULATION` to `1` to stream the built-in ECG waveform without hardware.
+- Leave `ENABLE_SIMULATION` at `0` when using a physical sensor.
 
 ### Enable Debug Output
 

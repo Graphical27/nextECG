@@ -6,18 +6,21 @@ const theme = {
   // Core Colors - Matt Black Theme
   primary: '#000000',      // Pure black background
   secondary: '#0a0a0a',    // Slightly lighter black for cards
+  background: '#000000',   // Page background
   accent: '#00ADB5',       // Teal accent (kept for medical context)
+  accentSecondary: '#00FFF0', // Lighter teal for gradients
   light: '#FFFFFF',        // Pure white text
+  text: '#FFFFFF',         // Main text color
   
   // Matt surfaces (no transparency)
   glass: '#0a0a0a',        // Solid matt black
   glassBorder: '#1a1a1a',  // Subtle border
   glassHover: '#121212',   // Hover state
   
-  // Text colors
+  // Text colors - improved visibility
   textPrimary: '#FFFFFF',
-  textSecondary: '#b0b0b0',
-  textMuted: '#666666',
+  textSecondary: '#E0E0E0',
+  textMuted: '#A0A0A0',    // Lighter for better visibility
   
   // No glow effects - clean professional
   glowAccent: 'none',

@@ -1,9 +1,19 @@
 # Chords Serial Plotter Data Formats
 ## Quick Reference for Arduino ECG Output Formats
 
+> **2025 update**: The shipping Arduino sketch now streams the native Chords binary packet (`0xC7 0x7C` sync, 1-byte counter, `NUM_CHANNELS`×2-byte values, `0x01` terminator). The legacy text formats are documented below for backwards compatibility or custom forks.
+
+## 🧬 Binary Packet (Default in v2+)
+
+- **Sync bytes**: `0xC7 0x7C`
+- **Counter**: 1 byte (increments per frame)
+- **Payload**: `NUM_CHANNELS` pairs of bytes (big-endian 10-bit ADC readings)
+- **Terminator**: `0x01`
+- **Nano build**: `NUM_CHANNELS = 8` (channel 0 is ECG)
+
 ---
 
-## 📡 Supported Formats
+## 📡 Legacy Supported Formats
 
 ### Format 1: Single Value
 **Description**: Simplest format - just the raw ECG value  

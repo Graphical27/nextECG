@@ -203,3 +203,381 @@ body {
   stroke-dasharray: 1000;
   animation: drawWaveform 2s ease-in-out infinite;
 }
+
+/* Landing Page Glassmorphism Styles */
+.glass-navbar {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass-navbar-scrolled {
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 173, 181, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+}
+
+.nav-link {
+  position: relative;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s ease;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #00ADB5;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+  width: 80%;
+}
+
+.footer-link {
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #00ADB5;
+}
+
+/* Grid Background for Landing Page */
+.grid-background {
+  background-image: 
+    linear-gradient(rgba(0, 173, 181, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 173, 181, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #00ADB5 0%, #00FFF0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Button Hover Effects */
+.btn-primary {
+  background: linear-gradient(135deg, #00ADB5 0%, #00FFF0 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 30px rgba(0, 173, 181, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  border: 2px solid #00ADB5;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 173, 181, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Feature Card Styles */
+.feature-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 173, 181, 0.2);
+}
+
+/* Pulse Animation for Badge */
+@keyframes pulse-badge {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 173, 181, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(0, 173, 181, 0);
+  }
+}
+
+.pulse-badge {
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+/* Floating Animation */
+@keyframes floating {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.floating {
+  animation: floating 3s ease-in-out infinite;
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HEARTBEAT PULSE CANVAS OPTIMIZATIONS
+   ═══════════════════════════════════════════════════════════ */
+
+.heartbeat-pulse-canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADVANCED GLOW EFFECTS - Medical Grade
+   ═══════════════════════════════════════════════════════════ */
+
+.medical-glow {
+  animation: medical-pulse 3s ease-in-out infinite;
+}
+
+@keyframes medical-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(0, 255, 240, 0.4)) 
+            drop-shadow(0 0 10px rgba(0, 255, 240, 0.2));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(0, 255, 240, 0.6)) 
+            drop-shadow(0 0 20px rgba(0, 255, 240, 0.3));
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCANLINE EFFECT - Hospital Monitor Aesthetic
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes scanline-vertical {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.scanline-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0, 255, 240, 0.5),
+    transparent
+  );
+  animation: scanline-vertical 4s linear infinite;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ECG GRID PATTERN - Professional Medical Display
+   ═══════════════════════════════════════════════════════════ */
+
+.ecg-grid-pattern {
+  background-image: 
+    linear-gradient(rgba(0, 255, 240, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 240, 0.03) 1px, transparent 1px),
+    linear-gradient(rgba(0, 255, 240, 0.05) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(0, 255, 240, 0.05) 2px, transparent 2px);
+  background-size: 
+    10px 10px,
+    10px 10px,
+    50px 50px,
+    50px 50px;
+  background-position: 
+    0 0,
+    0 0,
+    0 0,
+    0 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PERFORMANCE OPTIMIZATIONS - 60fps Guaranteed
+   ═══════════════════════════════════════════════════════════ */
+
+.hardware-accelerated {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .heartbeat-pulse-canvas,
+  .medical-glow,
+  .scanline-effect::before,
+  .floating,
+  .pulse-badge {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CSS-ONLY HEARTBEAT ANIMATION (Fallback/Alternative)
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes ecg-pulse-wave {
+  0% {
+    clip-path: polygon(
+      0% 50%, 5% 50%, 10% 50%, 15% 45%, 
+      20% 50%, 25% 30%, 28% 50%, 30% 60%, 
+      32% 50%, 40% 50%, 45% 55%, 50% 50%, 
+      55% 48%, 60% 50%, 70% 50%, 80% 50%, 
+      90% 50%, 100% 50%, 100% 100%, 0% 100%
+    );
+    opacity: 0.8;
+  }
+  50% {
+    clip-path: polygon(
+      0% 50%, 5% 50%, 10% 50%, 15% 48%, 
+      20% 50%, 25% 50%, 28% 50%, 30% 50%, 
+      32% 50%, 40% 50%, 45% 52%, 50% 50%, 
+      55% 50%, 60% 50%, 70% 50%, 80% 50%, 
+      90% 50%, 100% 50%, 100% 100%, 0% 100%
+    );
+    opacity: 0.3;
+  }
+  100% {
+    clip-path: polygon(
+      0% 50%, 5% 50%, 10% 50%, 15% 45%, 
+      20% 50%, 25% 30%, 28% 50%, 30% 60%, 
+      32% 50%, 40% 50%, 45% 55%, 50% 50%, 
+      55% 48%, 60% 50%, 70% 50%, 80% 50%, 
+      90% 50%, 100% 50%, 100% 100%, 0% 100%
+    );
+    opacity: 0.8;
+  }
+}
+
+.css-heartbeat-line {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(0, 255, 240, 0.8) 20%, 
+    rgba(0, 255, 240, 1) 50%, 
+    rgba(0, 255, 240, 0.8) 80%, 
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 8px rgba(0, 255, 240, 0.6));
+  animation: ecg-pulse-wave 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NEON TEXT GLOW - Medical Display Typography
+   ═══════════════════════════════════════════════════════════ */
+
+.neon-text-cyan {
+  color: rgb(0, 255, 240);
+  text-shadow: 
+    0 0 5px rgba(0, 255, 240, 0.5),
+    0 0 10px rgba(0, 255, 240, 0.3),
+    0 0 20px rgba(0, 255, 240, 0.2),
+    0 0 40px rgba(0, 255, 240, 0.1);
+  animation: neon-flicker 3s ease-in-out infinite;
+}
+
+@keyframes neon-flicker {
+  0%, 100% {
+    text-shadow: 
+      0 0 5px rgba(0, 255, 240, 0.5),
+      0 0 10px rgba(0, 255, 240, 0.3),
+      0 0 20px rgba(0, 255, 240, 0.2);
+  }
+  50% {
+    text-shadow: 
+      0 0 8px rgba(0, 255, 240, 0.8),
+      0 0 15px rgba(0, 255, 240, 0.5),
+      0 0 30px rgba(0, 255, 240, 0.3);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLITCH EFFECT - Hospital Monitor Error State
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+.glitch-effect {
+  animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DATA STREAM ANIMATION - Matrix-Style Medical Data
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes data-stream {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+.data-stream-column {
+  animation: data-stream 10s linear infinite;
+}
