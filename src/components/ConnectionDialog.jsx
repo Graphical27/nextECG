@@ -3,135 +3,203 @@ import { useTheme } from '../context/ThemeContext';
 
 const ConnectionDialog = ({ isOpen, onClose, onConnect }) => {
   const { theme } = useTheme();
-  const [ports, setPorts] = useState([]);
-  const [selectedPort, setSelectedPort] = useState('');
+  const [devices, setDevices] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState('');
-  const [wsConnection, setWsConnection] = useState(null);
 
+  // Detect devices when dialog opens
   useEffect(() => {
     if (isOpen) {
-      // Request port list when dialog opens
-      requestPortList();
+      detectDevices();
     }
+    
+    return () => {
+      // Cleanup
+      setDevices([]);
+      setSelectedDevice(null);
+      setError('');
+    };
   }, [isOpen]);
 
-  const requestPortList = () => {
+  const detectDevices = async () => {
     setLoading(true);
     setError('');
     
-    // Connect to WebSocket if not already connected
-    const ws = new WebSocket('ws://localhost:8080');
-    setWsConnection(ws);
-    
-    ws.onopen = () => {
-      // Request list of ports
-      ws.send(JSON.stringify({ type: 'list-ports' }));
-    };
-    
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        
-        if (message.type === 'ports-list') {
-          setPorts(message.ports);
-          setLoading(false);
+    try {
+      // Check if Serial API is available (Chrome, Edge)
+      if ('serial' in navigator) {
+        try {
+          const ports = await navigator.serial.getPorts();
+          const deviceList = ports.map((port, index) => ({
+            id: `serial-${index}`,
+            name: `Serial Device ${index + 1}`,
+            type: 'Serial Port',
+            port: port,
+            icon: '🔌'
+          }));
           
-          // Auto-select Arduino port if found
-          const arduinoPort = message.ports.find(p => 
-            p.manufacturer && (
-              p.manufacturer.toLowerCase().includes('arduino') ||
-              p.manufacturer.toLowerCase().includes('ftdi') ||
-              p.manufacturer.toLowerCase().includes('ch340') ||
-              p.manufacturer.toLowerCase().includes('wch')
-            )
-          );
-          
-          if (arduinoPort) {
-            setSelectedPort(arduinoPort.path);
-          } else if (message.ports.length > 0) {
-            setSelectedPort(message.ports[0].path);
+          if (deviceList.length > 0) {
+            setDevices(deviceList);
+            setSelectedDevice(deviceList[0]);
+          } else {
+            // No devices found, show option to request
+            setDevices([{
+              id: 'request-serial',
+              name: 'Click to detect new device',
+              type: 'Request Permission',
+              port: null,
+              icon: '🔍'
+            }]);
           }
-        } else if (message.type === 'error') {
-          setError(message.message);
-          setLoading(false);
+        } catch (err) {
+          console.error('Error getting serial ports:', err);
         }
-      } catch (err) {
-        console.error('Error parsing message:', err);
-        setError('Failed to parse server response');
-        setLoading(false);
       }
-    };
-    
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setError('Failed to connect to server. Make sure the backend is running.');
+      
+      // Simulate detecting USB devices (mock data for now)
+      // In production, this would use Web USB API or backend detection
+      const mockDevices = [
+        {
+          id: 'arduino-nano',
+          name: 'Arduino Nano',
+          type: 'USB Serial',
+          manufacturer: 'Arduino',
+          port: 'COM3',
+          icon: '🤖'
+        },
+        {
+          id: 'esp32',
+          name: 'ESP32 DevKit',
+          type: 'USB Serial',
+          manufacturer: 'Espressif',
+          port: 'COM4',
+          icon: '📡'
+        },
+        {
+          id: 'ch340',
+          name: 'CH340 USB Serial',
+          type: 'USB Serial',
+          manufacturer: 'WCH',
+          port: 'COM5',
+          icon: '🔌'
+        }
+      ];
+      
+      // Add mock devices for demo
+      if (devices.length === 0) {
+        setDevices(mockDevices);
+        setSelectedDevice(mockDevices[0]);
+      }
+      
+    } catch (err) {
+      console.error('Error detecting devices:', err);
+      setError('Failed to detect devices. Please check browser permissions.');
+    } finally {
       setLoading(false);
-    };
-    
-    ws.onclose = () => {
-      setLoading(false);
-    };
+    }
   };
 
-  const handleConnect = () => {
-    if (!selectedPort) {
-      setError('Please select a port');
+  const handleDeviceRequest = async () => {
+    try {
+      if ('serial' in navigator) {
+        const port = await navigator.serial.requestPort();
+        const newDevice = {
+          id: `serial-${Date.now()}`,
+          name: 'Serial Device',
+          type: 'Serial Port',
+          port: port,
+          icon: '🔌'
+        };
+        setDevices([newDevice]);
+        setSelectedDevice(newDevice);
+      }
+    } catch (err) {
+      console.error('User cancelled device selection:', err);
+    }
+  };
+
+  const handleConnect = async () => {
+    if (!selectedDevice) {
+      setError('Please select a device');
       return;
     }
     
-    onConnect(selectedPort);
-    onClose();
-  };
-
-  const handleRefresh = () => {
-    if (wsConnection) {
-      wsConnection.close();
+    setConnecting(true);
+    setError('');
+    
+    try {
+      // Simulate connection delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Call the parent connect handler
+      if (onConnect) {
+        onConnect(selectedDevice);
+      }
+      
+      // Close dialog
+      onClose();
+    } catch (err) {
+      setError('Failed to connect to device');
+      setConnecting(false);
     }
-    setPorts([]);
-    setSelectedPort('');
-    requestPortList();
   };
 
   if (!isOpen) return null;
 
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4" 
+      style={{ animation: 'fadeIn 0.2s ease-out' }}
+    >
+      {/* Backdrop - Click to close */}
       <div 
-        className="absolute inset-0 backdrop-blur-sm"
-        style={{ background: `${theme.primary}80` }}
+        className="absolute inset-0 backdrop-blur-sm transition-opacity duration-200"
+        style={{ 
+          background: isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.4)',
+        }}
         onClick={onClose}
       />
       
       {/* Dialog */}
       <div 
-        className="relative glass depth-shadow-lg rounded-2xl p-8 max-w-2xl w-full mx-4 slide-in scale-hover"
+        className="relative glass rounded-2xl p-8 w-full mx-auto"
         style={{
           border: `1px solid ${theme.glassBorder}`,
-          maxHeight: '80vh',
-          overflowY: 'auto'
+          maxWidth: '650px',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          animation: 'slideUpFadeIn 0.3s ease-out',
+          boxShadow: isDark 
+            ? '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(102, 126, 234, 0.2)' 
+            : '0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(102, 126, 234, 0.1)'
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Top accent line */}
+        {/* Top accent gradient */}
         <div 
-          className="absolute top-0 left-0 right-0 h-[2px]"
-          style={{ background: theme.accent }}
+          className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
+          style={{ 
+            background: 'linear-gradient(90deg, #667EEA, #764BA2, #F093FB)',
+          }}
         />
         
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between mb-6 pt-2">
+          <div className="flex items-center gap-4">
             <div 
-              className="w-12 h-12 rounded-xl flex items-center justify-center"
+              className="w-14 h-14 rounded-xl flex items-center justify-center transition-all"
               style={{
-                background: theme.secondary,
-                border: `1px solid ${theme.glassBorder}`,
+                background: 'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)',
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
               }}
             >
               <svg 
-                className="w-6 h-6" 
-                style={{ color: theme.accent }}
+                className="w-7 h-7" 
+                style={{ color: '#FFFFFF' }}
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -146,31 +214,32 @@ const ConnectionDialog = ({ isOpen, onClose, onConnect }) => {
             </div>
             <div>
               <h2 
-                className="font-orbitron font-bold text-2xl"
-                style={{ color: theme.textPrimary }}
+                className="font-bold text-2xl mb-1"
+                style={{ color: isDark ? '#F7FAFC' : theme.textPrimary }}
               >
-                Connect to Arduino
+                Connect Device
               </h2>
               <p 
                 className="text-sm font-medium"
-                style={{ color: theme.textMuted }}
+                style={{ color: isDark ? '#A0AEC0' : theme.textMuted }}
               >
-                Select your Arduino Nano serial port
+                Select a device to connect with NextECG
               </p>
             </div>
           </div>
           
+          {/* Close button */}
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
             style={{
-              background: theme.glass,
+              background: isDark ? 'rgba(45, 55, 72, 0.6)' : 'rgba(255, 255, 255, 0.8)',
               border: `1px solid ${theme.glassBorder}`,
             }}
           >
             <svg 
               className="w-5 h-5" 
-              style={{ color: theme.textMuted }}
+              style={{ color: isDark ? '#A0AEC0' : theme.textMuted }}
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -188,9 +257,9 @@ const ConnectionDialog = ({ isOpen, onClose, onConnect }) => {
         {/* Error Message */}
         {error && (
           <div 
-            className="mb-4 p-4 rounded-lg flex items-start gap-3"
+            className="mb-4 p-4 rounded-xl flex items-start gap-3"
             style={{
-              background: `${theme.danger}20`,
+              background: `${theme.danger}15`,
               border: `1px solid ${theme.danger}40`,
             }}
           >
@@ -210,14 +279,14 @@ const ConnectionDialog = ({ isOpen, onClose, onConnect }) => {
             </svg>
             <div>
               <div 
-                className="font-semibold mb-1"
+                className="font-semibold mb-1 text-sm"
                 style={{ color: theme.danger }}
               >
-                Error
+                Connection Error
               </div>
               <div 
-                className="text-sm"
-                style={{ color: theme.textMuted }}
+                className="text-xs"
+                style={{ color: isDark ? '#CBD5E0' : theme.textMuted }}
               >
                 {error}
               </div>
@@ -226,246 +295,217 @@ const ConnectionDialog = ({ isOpen, onClose, onConnect }) => {
         )}
         
         {/* Loading State */}
-        {loading && (
+        {loading ? (
           <div 
-            className="mb-6 p-6 rounded-lg flex flex-col items-center justify-center gap-4"
+            className="mb-6 p-12 rounded-xl flex flex-col items-center justify-center gap-4"
             style={{
-              background: theme.glass,
+              background: isDark ? 'rgba(45, 55, 72, 0.4)' : 'rgba(255, 255, 255, 0.6)',
               border: `1px solid ${theme.glassBorder}`,
             }}
           >
             <div 
-              className="w-12 h-12 rounded-full border-4 animate-spin"
+              className="w-16 h-16 rounded-full border-4 animate-spin"
               style={{
                 borderColor: `${theme.accent}20`,
                 borderTopColor: theme.accent,
               }}
             />
-            <div 
+            <p 
               className="text-sm font-medium"
-              style={{ color: theme.textMuted }}
+              style={{ color: isDark ? '#A0AEC0' : theme.textMuted }}
             >
-              Scanning for available ports...
-            </div>
+              Detecting devices...
+            </p>
           </div>
-        )}
-        
-        {/* Ports List */}
-        {!loading && ports.length > 0 && (
-          <div className="mb-6">
-            <div 
-              className="text-sm font-semibold mb-3"
-              style={{ color: theme.textPrimary }}
-            >
-              Available Ports ({ports.length})
-            </div>
-            
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {ports.map((port, index) => (
-                <label
-                  key={index}
-                  className="block cursor-pointer transition-all hover:scale-[1.02]"
+        ) : (
+          <>
+            {/* Device List */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 
+                  className="text-sm font-bold uppercase tracking-wide"
+                  style={{ color: isDark ? '#CBD5E0' : theme.textMuted }}
                 >
+                  Available Devices ({devices.length})
+                </h3>
+                <button
+                  onClick={detectDevices}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105"
+                  style={{
+                    background: `${theme.accent}15`,
+                    color: theme.accent,
+                    border: `1px solid ${theme.accent}30`,
+                  }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Refresh
+                </button>
+              </div>
+              
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+                {devices.length === 0 ? (
                   <div 
-                    className={`p-4 rounded-lg transition-all ${
-                      selectedPort === port.path ? 'scale-[1.02]' : ''
-                    }`}
+                    className="p-8 rounded-xl text-center"
                     style={{
-                      background: selectedPort === port.path ? `${theme.accent}20` : theme.glass,
-                      border: `2px solid ${selectedPort === port.path ? theme.accent : theme.glassBorder}`,
+                      background: isDark ? 'rgba(45, 55, 72, 0.4)' : 'rgba(255, 255, 255, 0.6)',
+                      border: `1px dashed ${theme.glassBorder}`,
                     }}
                   >
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="port"
-                        value={port.path}
-                        checked={selectedPort === port.path}
-                        onChange={(e) => setSelectedPort(e.target.value)}
-                        className="w-5 h-5 cursor-pointer"
-                        style={{ accentColor: theme.accent }}
+                    <svg 
+                      className="w-12 h-12 mx-auto mb-3 opacity-50" 
+                      style={{ color: theme.textMuted }}
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
                       />
-                      <div className="flex-1">
+                    </svg>
+                    <p 
+                      className="text-sm font-medium mb-1"
+                      style={{ color: isDark ? '#F7FAFC' : theme.textPrimary }}
+                    >
+                      No devices found
+                    </p>
+                    <p 
+                      className="text-xs"
+                      style={{ color: isDark ? '#A0AEC0' : theme.textMuted }}
+                    >
+                      Connect your device and click Refresh
+                    </p>
+                  </div>
+                ) : (
+                  devices.map((device) => (
+                    <button
+                      key={device.id}
+                      onClick={() => device.id === 'request-serial' ? handleDeviceRequest() : setSelectedDevice(device)}
+                      className="w-full p-4 rounded-xl text-left transition-all hover:scale-[1.02]"
+                      style={{
+                        background: selectedDevice?.id === device.id 
+                          ? `linear-gradient(135deg, ${theme.accent}20, ${theme.accent}10)` 
+                          : isDark ? 'rgba(45, 55, 72, 0.4)' : 'rgba(255, 255, 255, 0.8)',
+                        border: selectedDevice?.id === device.id 
+                          ? `2px solid ${theme.accent}` 
+                          : `1px solid ${theme.glassBorder}`,
+                        boxShadow: selectedDevice?.id === device.id 
+                          ? `0 4px 12px ${theme.accent}30` 
+                          : 'none',
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
                         <div 
-                          className="font-orbitron font-bold mb-1"
-                          style={{ color: theme.textPrimary }}
+                          className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
+                          style={{
+                            background: selectedDevice?.id === device.id 
+                              ? `${theme.accent}20` 
+                              : isDark ? 'rgba(102, 126, 234, 0.1)' : 'rgba(102, 126, 234, 0.08)',
+                          }}
                         >
-                          {port.path}
+                          {device.icon}
                         </div>
-                        {port.manufacturer && (
+                        <div className="flex-1">
                           <div 
-                            className="text-sm font-medium flex items-center gap-2"
-                            style={{ color: theme.textMuted }}
+                            className="font-bold text-sm mb-1"
+                            style={{ color: isDark ? '#F7FAFC' : theme.textPrimary }}
                           >
-                            <svg 
-                              className="w-4 h-4" 
-                              style={{ color: theme.accent }}
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
+                            {device.name}
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span 
+                              className="text-xs px-2 py-0.5 rounded"
+                              style={{
+                                background: `${theme.accent}15`,
+                                color: theme.accent,
+                              }}
                             >
-                              <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth={2} 
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
-                              />
-                            </svg>
-                            {port.manufacturer}
-                            {port.manufacturer.toLowerCase().includes('arduino') && (
+                              {device.type}
+                            </span>
+                            {device.port && (
                               <span 
-                                className="px-2 py-0.5 rounded text-xs font-bold"
-                                style={{
-                                  background: theme.success,
-                                  color: theme.primary,
-                                }}
+                                className="text-xs"
+                                style={{ color: isDark ? '#A0AEC0' : theme.textMuted }}
                               >
-                                ARDUINO
+                                {device.port}
+                              </span>
+                            )}
+                            {device.manufacturer && (
+                              <span 
+                                className="text-xs"
+                                style={{ color: isDark ? '#A0AEC0' : theme.textMuted }}
+                              >
+                                • {device.manufacturer}
                               </span>
                             )}
                           </div>
-                        )}
-                        {port.serialNumber && (
-                          <div 
-                            className="text-xs mt-1"
-                            style={{ color: theme.textMuted }}
+                        </div>
+                        {selectedDevice?.id === device.id && (
+                          <svg 
+                            className="w-6 h-6" 
+                            style={{ color: theme.accent }}
+                            fill="currentColor" 
+                            viewBox="0 0 20 20"
                           >
-                            Serial: {port.serialNumber}
-                          </div>
+                            <path 
+                              fillRule="evenodd" 
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+                              clipRule="evenodd" 
+                            />
+                          </svg>
                         )}
                       </div>
-                    </div>
-                  </div>
-                </label>
-              ))}
+                    </button>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4 border-t" style={{ borderColor: theme.glassBorder }}>
+              <button
+                onClick={onClose}
+                className="flex-1 px-6 py-3 rounded-xl font-medium text-sm transition-all hover:scale-[1.02]"
+                style={{
+                  background: isDark ? 'rgba(45, 55, 72, 0.6)' : 'rgba(255, 255, 255, 0.8)',
+                  color: isDark ? '#F7FAFC' : theme.textPrimary,
+                  border: `1px solid ${theme.glassBorder}`,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConnect}
+                disabled={!selectedDevice || connecting}
+                className="flex-1 px-6 py-3 rounded-xl font-medium text-sm transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  background: selectedDevice && !connecting 
+                    ? 'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)' 
+                    : isDark ? 'rgba(102, 126, 234, 0.3)' : 'rgba(102, 126, 234, 0.2)',
+                  color: '#FFFFFF',
+                  boxShadow: selectedDevice && !connecting 
+                    ? '0 4px 12px rgba(102, 126, 234, 0.4)' 
+                    : 'none',
+                }}
+              >
+                {connecting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div 
+                      className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"
+                    />
+                    Connecting...
+                  </span>
+                ) : (
+                  'Connect'
+                )}
+              </button>
+            </div>
+          </>
         )}
-        
-        {/* No Ports Found */}
-        {!loading && ports.length === 0 && !error && (
-          <div 
-            className="mb-6 p-6 rounded-lg text-center"
-            style={{
-              background: theme.glass,
-              border: `1px solid ${theme.glassBorder}`,
-            }}
-          >
-            <svg 
-              className="w-16 h-16 mx-auto mb-4" 
-              style={{ color: theme.textMuted }}
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-              />
-            </svg>
-            <div 
-              className="font-semibold mb-2"
-              style={{ color: theme.textPrimary }}
-            >
-              No Serial Ports Found
-            </div>
-            <div 
-              className="text-sm mb-4"
-              style={{ color: theme.textMuted }}
-            >
-              Make sure your Arduino Nano is connected via USB
-            </div>
-          </div>
-        )}
-        
-        {/* Actions */}
-        <div className="flex gap-3">
-          <button
-            onClick={handleRefresh}
-            disabled={loading}
-            className="flex-1 px-6 py-3 rounded-lg font-semibold transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            style={{
-              background: theme.glass,
-              border: `1px solid ${theme.glassBorder}`,
-              color: theme.textPrimary,
-            }}
-          >
-            <svg 
-              className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`}
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
-              />
-            </svg>
-            Refresh
-          </button>
-          
-          <button
-            onClick={handleConnect}
-            disabled={!selectedPort || loading}
-            className="flex-1 px-6 py-3 rounded-lg font-semibold transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            style={{
-              background: theme.accent,
-              color: theme.primary,
-            }}
-          >
-            <svg 
-              className="w-5 h-5"
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M13 10V3L4 14h7v7l9-11h-7z" 
-              />
-            </svg>
-            Connect
-          </button>
-        </div>
-        
-        {/* Help Text */}
-        <div 
-          className="mt-4 p-4 rounded-lg"
-          style={{
-            background: `${theme.info}10`,
-            border: `1px solid ${theme.info}30`,
-          }}
-        >
-          <div 
-            className="text-xs font-medium flex items-start gap-2"
-            style={{ color: theme.textMuted }}
-          >
-            <svg 
-              className="w-4 h-4 flex-shrink-0 mt-0.5" 
-              style={{ color: theme.info }}
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-              />
-            </svg>
-            <div>
-              <strong>Tip:</strong> Arduino ports usually show up as "Arduino", "FTDI", "CH340", or "wch.cn" manufacturers. 
-              Make sure you've uploaded the ECG code to your Arduino Nano before connecting.
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -331,80 +331,148 @@ const LiveECGPlotter = () => {
         )}
       </div>
       
-      {/* Bottom Stats Bar */}
+      {/* Bottom Feature Cards */}
       <div 
-        className="grid grid-cols-4 gap-4 pt-4"
+        className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4"
         style={{ borderTop: `1px solid ${theme.glassBorder}` }}
       >
+        {/* Live Monitoring Card */}
         <div 
-          className="px-3 py-2 rounded-lg"
-          style={{ background: `${theme.glass}` }}
+          className="px-4 py-3 rounded-lg glass glass-hover cursor-pointer transition-all hover:scale-105"
+          style={{ 
+            background: theme.secondary,
+            border: `1px solid ${theme.glassBorder}`,
+          }}
         >
-          <div 
-            className="text-xs font-medium mb-1"
-            style={{ color: theme.textMuted }}
-          >
-            Heart Rate
+          <div className="flex items-center gap-2 mb-2">
+            <div 
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{
+                background: `${theme.accent}20`,
+                color: theme.accent,
+              }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div 
+              className="text-xs font-medium uppercase tracking-wider"
+              style={{ color: theme.textMuted }}
+            >
+              Live Monitoring
+            </div>
           </div>
           <div 
-            className="font-orbitron text-lg font-bold"
-            style={{ color: theme.accent }}
+            className="font-semibold text-sm"
+            style={{ color: theme.textPrimary }}
           >
-            {heartRate} BPM
+            Real-time ECG tracking
           </div>
         </div>
         
+        {/* 6Lead Data Card */}
         <div 
-          className="px-3 py-2 rounded-lg"
-          style={{ background: `${theme.glass}` }}
+          className="px-4 py-3 rounded-lg glass glass-hover cursor-pointer transition-all hover:scale-105"
+          style={{ 
+            background: theme.secondary,
+            border: `1px solid ${theme.glassBorder}`,
+          }}
         >
-          <div 
-            className="text-xs font-medium mb-1"
-            style={{ color: theme.textMuted }}
-          >
-            Avg Signal
+          <div className="flex items-center gap-2 mb-2">
+            <div 
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{
+                background: `${theme.accent}20`,
+                color: theme.accent,
+              }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div 
+              className="text-xs font-medium uppercase tracking-wider"
+              style={{ color: theme.textMuted }}
+            >
+              6Lead Data
+            </div>
           </div>
           <div 
-            className="font-orbitron text-lg font-bold"
-            style={{ color: theme.accent }}
+            className="font-semibold text-sm"
+            style={{ color: theme.textPrimary }}
           >
-            {avgValue} mV
+            Multi-channel analysis
           </div>
         </div>
         
+        {/* Post Surgery Recovery Card */}
         <div 
-          className="px-3 py-2 rounded-lg"
-          style={{ background: `${theme.glass}` }}
+          className="px-4 py-3 rounded-lg glass glass-hover cursor-pointer transition-all hover:scale-105"
+          style={{ 
+            background: theme.secondary,
+            border: `1px solid ${theme.glassBorder}`,
+          }}
         >
-          <div 
-            className="text-xs font-medium mb-1"
-            style={{ color: theme.textMuted }}
-          >
-            Sample Rate
+          <div className="flex items-center gap-2 mb-2">
+            <div 
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{
+                background: `${theme.accent}20`,
+                color: theme.accent,
+              }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
+            <div 
+              className="text-xs font-medium uppercase tracking-wider"
+              style={{ color: theme.textMuted }}
+            >
+              Post Surgery Recovery
+            </div>
           </div>
           <div 
-            className="font-orbitron text-lg font-bold"
-            style={{ color: theme.accent }}
+            className="font-semibold text-sm"
+            style={{ color: theme.textPrimary }}
           >
-            250 ms
+            Recovery monitoring
           </div>
         </div>
         
+        {/* History Card */}
         <div 
-          className="px-3 py-2 rounded-lg"
-          style={{ background: `${theme.glass}` }}
+          className="px-4 py-3 rounded-lg glass glass-hover cursor-pointer transition-all hover:scale-105"
+          style={{ 
+            background: theme.secondary,
+            border: `1px solid ${theme.glassBorder}`,
+          }}
         >
-          <div 
-            className="text-xs font-medium mb-1"
-            style={{ color: theme.textMuted }}
-          >
-            Buffer Size
+          <div className="flex items-center gap-2 mb-2">
+            <div 
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{
+                background: `${theme.accent}20`,
+                color: theme.accent,
+              }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div 
+              className="text-xs font-medium uppercase tracking-wider"
+              style={{ color: theme.textMuted }}
+            >
+              History
+            </div>
           </div>
           <div 
-            className="font-orbitron text-lg font-bold"
-            style={{ color: theme.accent }}
+            className="font-semibold text-sm"
+            style={{ color: theme.textPrimary }}
           >
-            {maxDataPoints} pts
+            View past records
           </div>
         </div>
       </div>

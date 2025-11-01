@@ -1,58 +1,67 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Matt Black Professional MedTech Theme
-const theme = {
-  name: 'Professional Black',
-  // Core Colors - Matt Black Theme
-  primary: '#000000',      // Pure black background
-  secondary: '#0a0a0a',    // Slightly lighter black for cards
-  background: '#000000',   // Page background
-  accent: '#00ADB5',       // Teal accent (kept for medical context)
-  accentSecondary: '#00FFF0', // Lighter teal for gradients
-  light: '#FFFFFF',        // Pure white text
-  text: '#FFFFFF',         // Main text color
-  
-  // Matt surfaces (no transparency)
-  glass: '#0a0a0a',        // Solid matt black
-  glassBorder: '#1a1a1a',  // Subtle border
-  glassHover: '#121212',   // Hover state
-  
-  // Text colors - improved visibility
-  textPrimary: '#FFFFFF',
-  textSecondary: '#E0E0E0',
-  textMuted: '#A0A0A0',    // Lighter for better visibility
-  
-  // No glow effects - clean professional
-  glowAccent: 'none',
-  glowAccentStrong: 'none',
-  glowSubtle: 'none',
-  
-  // Status colors (muted for professional look)
-  success: '#00ff88',
-  warning: '#ffb800',
-  danger: '#ff4757',
-  info: '#00ADB5',
-  
-  // ECG specific
-  ecgLine: '#00ADB5',
-  ecgGrid: 'rgba(255, 255, 255, 0.05)',
-  
-  // Clean shadows
-  shadowSm: '0 2px 8px rgba(0, 0, 0, 0.8)',
-  shadowMd: '0 4px 16px rgba(0, 0, 0, 0.9)',
-  shadowLg: '0 8px 32px rgba(0, 0, 0, 1)',
+// Color schemes - Professional Medical
+const colorSchemes = {
+  cyan: '#00ADB5',
+  blue: '#0EA5E9',
+  green: '#10B981'
 };
 
-// Legacy theme structure (kept minimal for compatibility)
-const themes = {
-  clinical: {
-    name: 'Forest Green',
-    bg: 'bg-green-50',
-    bgSecondary: 'bg-green-100',
-    text: 'text-green-900',
-    name: 'Clinical Glass',
-    ...theme,
-  },
+// Font size presets
+const fontSizes = {
+  small: { base: '14px', scale: 0.875 },
+  medium: { base: '16px', scale: 1 },
+  large: { base: '18px', scale: 1.125 }
+};
+
+// Generate theme based on settings
+const generateTheme = (settings = {}) => {
+  const { theme: themeName = 'dark', colorScheme = 'cyan', fontSize = 'medium' } = settings;
+  const accentColor = colorSchemes[colorScheme] || colorSchemes.cyan;
+  const isDark = themeName === 'dark';
+  const isSilver = themeName === 'silver';
+  
+  return {
+    name: isDark ? 'Professional Dark' : isSilver ? 'Signature Silver' : 'Professional Dark',
+    // Core Colors - Eye-Pleasing Gradient Theme
+    primary: '#F0F4F8', // Soft blue-gray background
+    secondary: '#E6EEF5', // Light blue-gray
+    accent: '#667EEA', // Beautiful indigo
+    light: '#FFFFFF', // Pure white
+    
+    // Glass surfaces - Clean with subtle tint
+    glass: 'rgba(255, 255, 255, 0.9)', // White glass
+    glassBorder: 'rgba(102, 126, 234, 0.12)', // Soft indigo border
+    glassHover: 'rgba(255, 255, 255, 1)',
+    
+    // Text colors - Easy on eyes
+    textPrimary: '#2D3748', // Soft dark gray
+    textSecondary: '#667EEA', // Beautiful indigo
+    textMuted: '#718096', // Medium gray
+    
+    // Subtle glow effects
+    glowAccent: '0 0 20px rgba(102, 126, 234, 0.15)',
+    glowAccentStrong: '0 0 30px rgba(102, 126, 234, 0.25)',
+    glowSubtle: '0 2px 15px rgba(102, 126, 234, 0.08)',
+    
+    // Status colors - Beautiful palette
+    success: '#48BB78', // Fresh green
+    warning: '#ED8936', // Warm orange
+    danger: '#F56565', // Soft red
+    info: '#667EEA', // Beautiful indigo
+    
+    // ECG specific
+    ecgLine: '#667EEA', // Beautiful indigo
+    ecgGrid: 'rgba(102, 126, 234, 0.06)',
+    
+    // Shadows - Soft and natural
+    shadowSm: '0 2px 8px rgba(0, 0, 0, 0.06)',
+    shadowMd: '0 4px 16px rgba(0, 0, 0, 0.08)',
+    shadowLg: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    
+    // Font settings
+    fontSize: fontSizes[fontSize],
+  };
 };
 
 const ThemeContext = createContext();
@@ -66,21 +75,58 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  // Always use clinical theme
-  const currentTheme = 'clinical';
+  const [appearanceSettings, setAppearanceSettings] = useState({
+    theme: 'dark',
+    fontSize: 'medium',
+    colorScheme: 'cyan',
+    language: 'en'
+  });
 
-  // Set body background on mount
+  // Load appearance settings from localStorage
   useEffect(() => {
-    document.body.style.background = theme.primary;
-    document.body.style.color = theme.textPrimary;
+    try {
+      const savedAppearance = localStorage.getItem('nextECG_appearance');
+      if (savedAppearance) {
+        const parsed = JSON.parse(savedAppearance);
+        // Ensure all required properties exist
+        setAppearanceSettings({
+          theme: parsed.theme || 'dark',
+          fontSize: parsed.fontSize || 'medium',
+          colorScheme: parsed.colorScheme || 'cyan',
+          language: parsed.language || 'en'
+        });
+      }
+    } catch (error) {
+      console.error('Error loading appearance settings:', error);
+      // Use defaults if error
+      setAppearanceSettings({
+        theme: 'dark',
+        fontSize: 'medium',
+        colorScheme: 'cyan',
+        language: 'en'
+      });
+    }
   }, []);
+
+  const theme = generateTheme(appearanceSettings);
+
+  // Apply to body and root HTML element
+  useEffect(() => {
+    try {
+      document.body.style.background = theme.primary;
+      document.body.style.color = theme.textPrimary;
+      document.documentElement.style.fontSize = theme.fontSize.base;
+    } catch (error) {
+      console.error('Error applying theme:', error);
+    }
+  }, [theme]);
 
   return (
     <ThemeContext.Provider
       value={{
         theme,
-        currentTheme,
-        themes,
+        appearanceSettings,
+        setAppearanceSettings,
       }}
     >
       {children}

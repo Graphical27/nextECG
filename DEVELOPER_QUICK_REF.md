@@ -25,12 +25,9 @@ cd backend && npm run list-ports
 
 ### Arduino Code (`backend/arduino_ecg_simulator.ino`)
 ```cpp
-#define BOARD_NANO_CLONE       // uncomment the BOARD_* macro you need
-// #define BOARD_UNO_R3
-// #define BOARD_MEGA_2560_R3
-
-#define ENABLE_SIMULATION 0    // 1 = synthetic ECG (no hardware)
 #define SAMPLE_RATE 250        // 125, 250, or 500 Hz
+#define OUTPUT_FORMAT 2        // 1, 2, or 3 (use 2 for Chords)
+bool useRealSensor = false;    // true for real ECG sensor
 ```
 
 ### Backend (`backend/server.js`)
@@ -42,9 +39,6 @@ baudRate: 115200,              // Must match Arduino
 ---
 
 ## 📡 Data Formats
-
-- **Default (v2+)**: Chords binary packet (`0xC7 0x7C` + counter + 8×2-byte channels + `0x01`). Channel 0 carries ECG.
-- **Legacy reference** (only if you restore the old `OUTPUT_FORMAT` switch):
 
 ### Format 1: Single Value
 ```

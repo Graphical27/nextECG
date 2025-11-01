@@ -142,6 +142,25 @@ const PatientInfo = () => {
           </div>
         </div>
 
+        {patientInfo.email && (
+          <div className="grid grid-cols-1 gap-4 mt-4">
+            <div>
+              <div 
+                className="text-xs font-medium mb-1"
+                style={{ color: theme.textMuted }}
+              >
+                Email
+              </div>
+              <div 
+                className="font-semibold"
+                style={{ color: theme.textPrimary }}
+              >
+                {patientInfo.email}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div 
           className="pt-4 mt-4"
           style={{ borderTop: `1px solid ${theme.glassBorder}` }}

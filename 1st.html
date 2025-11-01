@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXTecg - Loading</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0d0d0d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Silver dust particles background */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(192, 192, 192, 0.03) 1px, transparent 1px),
+                radial-gradient(circle at 60% 70%, rgba(192, 192, 192, 0.03) 1px, transparent 1px),
+                radial-gradient(circle at 80% 10%, rgba(192, 192, 192, 0.02) 1px, transparent 1px),
+                radial-gradient(circle at 40% 80%, rgba(192, 192, 192, 0.03) 1px, transparent 1px),
+                radial-gradient(circle at 10% 60%, rgba(192, 192, 192, 0.02) 1px, transparent 1px);
+            background-size: 200px 200px, 300px 300px, 250px 250px, 180px 180px, 220px 220px;
+            background-position: 0 0, 50px 50px, 100px 100px, 150px 150px, 200px 200px;
+            animation: dustShift 20s ease-in-out infinite;
+        }
+
+        @keyframes dustShift {
+            0%, 100% { 
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            50% { 
+                transform: translate(30px, -30px);
+                opacity: 0.8;
+            }
+        }
+
+        /* Additional silver dust layers */
+        body::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 30% 50%, rgba(192, 192, 192, 0.02) 2px, transparent 2px),
+                radial-gradient(circle at 70% 40%, rgba(192, 192, 192, 0.02) 2px, transparent 2px),
+                radial-gradient(circle at 50% 90%, rgba(192, 192, 192, 0.03) 1px, transparent 1px);
+            background-size: 400px 400px, 350px 350px, 280px 280px;
+            background-position: 0 0, 100px 50px, 200px 100px;
+            animation: dustShift 25s ease-in-out infinite reverse;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            margin-top: -100px;
+        }
+
+        /* Logo styling */
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 400;
+            color: #c0c0c0;
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.15em;
+            text-shadow: 0 0 30px rgba(192, 192, 192, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.1em;
+        }
+
+        .logo-next {
+            font-family: 'Indam', sans-serif;
+            font-weight: 400;
+            color: #a8a8a8;
+        }
+
+        .logo-accent {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            text-shadow: none;
+        }
+
+        .tagline {
+            color: #505050;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        /* ECG Monitor Box */
+        .ecg-monitor {
+            width: 500px;
+            height: 180px;
+            margin: 0 auto 2.5rem;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(192, 192, 192, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
+                        inset 0 1px 0 rgba(192, 192, 192, 0.05);
+        }
+
+        /* Grid lines */
+        .grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(192, 192, 192, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(192, 192, 192, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border-radius: 12px;
+        }
+
+        .ecg-canvas {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Heart Rate Display */
+        .hr-display {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #c0c0c0;
+            font-size: 2rem;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(192, 192, 192, 0.3);
+            font-family: 'Orbitron', monospace;
+        }
+
+        .hr-label {
+            font-size: 0.6rem;
+            color: #606060;
+            letter-spacing: 0.1em;
+            margin-top: -5px;
+        }
+
+        /* Pulse dot */
+        .pulse-dot {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 12px;
+            height: 12px;
+            background: #c0c0c0;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.6);
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.5);
+                opacity: 0.5;
+            }
+        }
+
+        .status-text {
+            color: #606060;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            animation: fadeText 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeText {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Floating silver particles */
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(192, 192, 192, 0.3);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            box-shadow: 0 0 3px rgba(192, 192, 192, 0.5);
+        }
+
+        .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 80%; top: 40%; animation-delay: 2s; }
+        .particle:nth-child(3) { left: 30%; top: 70%; animation-delay: 4s; }
+        .particle:nth-child(4) { left: 70%; top: 60%; animation-delay: 1s; }
+        .particle:nth-child(5) { left: 50%; top: 30%; animation-delay: 3s; }
+        .particle:nth-child(6) { left: 20%; top: 80%; animation-delay: 2.5s; }
+        .particle:nth-child(7) { left: 90%; top: 15%; animation-delay: 3.5s; }
+        .particle:nth-child(8) { left: 40%; top: 40%; animation-delay: 1.5s; }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            50% { 
+                transform: translateY(-100px) translateX(50px);
+                opacity: 1;
+            }
+        }
+
+        /* ECG Path animation */
+        .ecg-path {
+            stroke: #c0c0c0;
+            stroke-width: 2.5;
+            fill: none;
+            filter: drop-shadow(0 0 8px rgba(192, 192, 192, 0.4));
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .ecg-glow {
+            stroke: #c0c0c0;
+            stroke-width: 4;
+            fill: none;
+            opacity: 0.2;
+            filter: blur(4px);
+        }
+    </style>
+</head>
+<body>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+
+    <div class="container">
+        <div class="logo">
+            <span class="logo-next">NEXT</span><span class="logo-accent">ecg</span>
+        </div>
+        <div class="tagline">Advanced Cardiac Monitoring</div>
+
+        <div class="ecg-monitor">
+            <div class="grid"></div>
+            <div class="pulse-dot"></div>
+            <div class="hr-display">
+                <div id="loadingNumber">0</div>
+                <div class="hr-label">LOADING</div>
+            </div>
+            
+            <div class="ecg-canvas">
+                <svg viewBox="0 0 460 140" preserveAspectRatio="none">
+                    <!-- Glow effect -->
+                    <path class="ecg-glow" d="M0,70 L100,70 L110,70 L115,40 L120,100 L125,70 L130,65 L135,75 L140,70 L460,70">
+                        <animate attributeName="d" 
+                            values="M0,70 L100,70 L110,70 L115,40 L120,100 L125,70 L130,65 L135,75 L140,70 L460,70;
+                                    M0,70 L100,70 L110,70 L115,40 L120,100 L125,70 L130,65 L135,75 L140,70 L460,70"
+                            dur="1.2s" 
+                            repeatCount="indefinite"/>
+                        <animateTransform attributeName="transform" type="translate" 
+                            from="-200 0" to="460 0" dur="3s" repeatCount="indefinite"/>
+                    </path>
+                    
+                    <!-- Main ECG line -->
+                    <path class="ecg-path" d="M0,70 L100,70 L110,70 L115,40 L120,100 L125,70 L130,65 L135,75 L140,70 L460,70">
+                        <animate attributeName="d" 
+                            values="M0,70 L100,70 L110,70 L115,40 L120,100 L125,70 L130,65 L135,75 L140,70 L460,70;
+                                    M0,70 L100,70 L110,70 L115,40 L120,100 L125,70 L130,65 L135,75 L140,70 L460,70"
+                            dur="1.2s" 
+                            repeatCount="indefinite"/>
+                        <animateTransform attributeName="transform" type="translate" 
+                            from="-200 0" to="460 0" dur="3s" repeatCount="indefinite"/>
+                    </path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animate loading number from 0 to 100 with easing
+        let count = 0;
+        const duration = 4000; // 4 seconds total
+        const startTime = Date.now();
+        const numberElement = document.getElementById('loadingNumber');
+        
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
+        
+        function updateProgress() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easedProgress = easeOutCubic(progress);
+            count = Math.floor(easedProgress * 100);
+            
+            numberElement.textContent = count;
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateProgress);
+            } else {
+                numberElement.textContent = '100';
+            }
+        }
+        
+        updateProgress();
+    </script>
+</body>
+</html>
