@@ -109,7 +109,7 @@ const DoctorDashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto p-6 pb-12">
+      <main className="container mx-auto px-6 pt-32 pb-12">
         {/* Navigation Tabs */}
         <div className="flex gap-4 mb-6">
           <button

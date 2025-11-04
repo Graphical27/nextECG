@@ -121,13 +121,13 @@ const Header = ({ onSettingsClick }) => {
     setCurrentTheme(newTheme);
     // Apply comprehensive theme changes
     if (newTheme === 'dark') {
-      // Dark mode
-      document.body.style.background = 'linear-gradient(135deg, #1A202C 0%, #2D3748 100%)';
+      // Dark mode - Rich dark gradient with subtle colors
+      document.body.style.background = 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%)';
       document.body.style.color = '#F7FAFC';
       document.documentElement.setAttribute('data-theme', 'dark');
     } else {
-      // Light mode
-      document.body.style.background = 'linear-gradient(135deg, #F0F4F8 0%, #E6EEF5 100%)';
+      // Light mode - Soft pastel gradient
+      document.body.style.background = 'linear-gradient(135deg, #E3F2FD 0%, #F3E5F5 50%, #FFF3E0 100%)';
       document.body.style.color = '#2D3748';
       document.documentElement.setAttribute('data-theme', 'light');
     }
@@ -150,7 +150,7 @@ const Header = ({ onSettingsClick }) => {
     <>
       {/* Beautiful Gradient Top Bar */}
       <div 
-        className="fixed top-0 left-0 right-0 h-1 z-[100]"
+        className="fixed top-0 left-0 right-0 h-1 z-[9999]"
         style={{
           background: 'linear-gradient(90deg, #667EEA, #764BA2, #F093FB, #667EEA)',
           backgroundSize: '300% 100%',
@@ -158,23 +158,21 @@ const Header = ({ onSettingsClick }) => {
         }}
       />
       
+      {/* Glassy Oval Navbar with Gap from Top */}
       <header 
-        className="sticky top-0 z-50"
+        className="fixed top-6 left-1/2 z-[9998]"
         style={{
-          background: currentTheme === 'dark' 
-            ? 'rgba(26, 32, 44, 0.98)' 
-            : 'rgba(255, 255, 255, 0.98)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: currentTheme === 'dark'
-            ? `1px solid rgba(102, 126, 234, 0.3)`
-            : `1px solid rgba(102, 126, 234, 0.15)`,
-          marginTop: '4px',
-          boxShadow: currentTheme === 'dark'
-            ? '0 4px 20px rgba(0, 0, 0, 0.5)'
-            : '0 4px 20px rgba(0, 0, 0, 0.03)',
+          transform: 'translateX(-50%)',
+          width: 'calc(100% - 3rem)',
+          maxWidth: '1400px',
         }}
       >
-      <div className="container mx-auto px-6 py-3">
+        <div 
+          className="glassy-navbar"
+          style={{
+            padding: '1rem 2rem',
+          }}
+        >
         <div className="flex items-center justify-between">
           {/* Logo Section */}
           <div className="flex items-center gap-3">
@@ -264,7 +262,7 @@ const Header = ({ onSettingsClick }) => {
             )}
             
             {/* Theme Switcher */}
-            <div className="relative" ref={themeMenuRef}>
+            <div className="relative z-[10000]" ref={themeMenuRef}>
               <button
                 onClick={() => setShowThemeMenu(!showThemeMenu)}
                 className="p-2.5 rounded-xl transition-all hover:shadow-lg"
@@ -283,7 +281,7 @@ const Header = ({ onSettingsClick }) => {
               {/* Theme Dropdown Menu */}
               {showThemeMenu && (
                 <div 
-                  className="absolute right-0 mt-3 w-80 rounded-2xl shadow-2xl z-[9999] overflow-hidden"
+                  className="absolute right-0 mt-3 w-80 rounded-2xl shadow-2xl overflow-hidden"
                   style={{
                     background: currentTheme === 'dark'
                       ? 'rgba(26, 32, 44, 0.98)'
@@ -293,6 +291,7 @@ const Header = ({ onSettingsClick }) => {
                       ? '1px solid rgba(102, 126, 234, 0.3)'
                       : '1px solid rgba(102, 126, 234, 0.15)',
                     animation: 'slideUpFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    zIndex: 10001,
                   }}
                 >
                   {/* Header with Icon */}
@@ -519,7 +518,8 @@ const Header = ({ onSettingsClick }) => {
             )}
           </div>
         </div>
-      </div>
+        </div>
+      </header>
       
       {/* Connection Dialog */}
       <ConnectionDialog
@@ -527,7 +527,6 @@ const Header = ({ onSettingsClick }) => {
         onClose={() => setShowConnectionDialog(false)}
         onConnect={handleConnect}
       />
-    </header>
     </>
   );
 };

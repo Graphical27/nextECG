@@ -39,8 +39,8 @@ const HeartbeatBackground = () => {
 
     let offset = 0;
     const speed = 0.3;
-    const lineColor = 'rgba(102, 126, 234, 0.08)'; // Subtle indigo
-    const gridColor = 'rgba(102, 126, 234, 0.03)';
+    const lineColor = 'rgba(239, 68, 68, 0.15)'; // Red heartbeat pulse
+    const gridColor = 'rgba(239, 68, 68, 0.03)'; // Subtle red grid
 
     const drawGrid = () => {
       ctx.strokeStyle = gridColor;

@@ -8,6 +8,7 @@ import PatientDashboard from './components/PatientDashboard';
 import DoctorDashboard from './components/DoctorDashboard';
 import SixLeadECG from './components/SixLeadECG';
 import PostSurgeryRecovery from './components/PostSurgeryRecovery';
+import HeartHealthAnalysis from './components/HeartHealthAnalysis';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function AppRoutes() {
@@ -65,6 +66,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute requiredType="patient">
             <PostSurgeryRecovery />
+          </ProtectedRoute>
+        } 
+      />
+
+      {/* Heart Health Analysis Page - Protected */}
+      <Route 
+        path="/patient/heart-health" 
+        element={
+          <ProtectedRoute requiredType="patient">
+            <HeartHealthAnalysis />
           </ProtectedRoute>
         } 
       />

@@ -29,17 +29,20 @@ function PatientDashboard() {
       <Header onSettingsClick={() => setShowSettings(true)} />
       
       {/* Main Content */}
-      <main className="container mx-auto px-6 pt-24 pb-12" style={{ position: 'relative', zIndex: 1 }}>
+      <main className="container mx-auto px-6 pt-32 pb-12" style={{ position: 'relative', zIndex: 1 }}>
         
         {/* Feature Cards - Portal Style */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
           {/* How's My Heart Card */}
-          <div className="cursor-pointer">
+          <div 
+            className="cursor-pointer"
+            onClick={() => window.location.assign('/heart-rate/index.html')}
+          >
               <DataCard
                 title="How's My Heart"
-                value="Coming Soon"
+                value={vitals.heartRate > 0 ? `${vitals.heartRate} BPM` : "Connect Device"}
                 unit=""
-                status="warning"
+                status={vitals.heartRate >= 60 && vitals.heartRate <= 100 ? "normal" : vitals.heartRate > 100 ? "warning" : vitals.heartRate > 0 ? "warning" : "info"}
                 icon={
                   <svg 
                     className="w-6 h-6" 

@@ -426,7 +426,7 @@ const ConnectionDialog = ({ isOpen, onClose, onConnect }) => {
                             >
                               {device.type}
                             </span>
-                            {device.port && (
+                            {device.port && typeof device.port === 'string' && (
                               <span 
                                 className="text-xs"
                                 style={{ color: isDark ? '#A0AEC0' : theme.textMuted }}

@@ -48,6 +48,8 @@ let streamingActive = false;
 let handshakeStage = 'idle';
 let handshakeRetryTimer = null;
 let serialBuffer = Buffer.alloc(0);
+let connectionStartTime = null;
+let heartbeatCalculationEnabled = false;
 
 // 1. --- WebSocket Server Setup ---
 // Create a WebSocket server on port 8080
@@ -131,26 +133,29 @@ function detectRPeak(value) {
   if (ecgBuffer.length > BUFFER_SIZE) {
     ecgBuffer.shift();
   }
-  
+
   if (ecgBuffer.length < 10) return;
-  
+
+  // Only perform heartbeat calculation if enabled (after 4 seconds of connection)
+  if (!heartbeatCalculationEnabled) return;
+
   // Simple peak detection: value significantly higher than recent average
   const recentAvg = ecgBuffer.slice(-10).reduce((a, b) => a + b, 0) / 10;
   const threshold = recentAvg * 1.3; // 30% above average
-  
+
   if (value > threshold && !peakDetected) {
     peakDetected = true;
     const now = Date.now();
     const rrInterval = now - lastHeartbeatTime;
-    
+
     if (rrInterval > 300 && rrInterval < 2000) { // Valid R-R interval (30-200 BPM)
       rrIntervals.push(rrInterval);
       if (rrIntervals.length > 5) rrIntervals.shift(); // Keep last 5 intervals
-      
+
       vitalSigns.heartRate = calculateHeartRate();
       broadcast({ type: 'vitals', data: vitalSigns });
     }
-    
+
     lastHeartbeatTime = now;
   } else if (value < threshold * 0.8) {
     peakDetected = false;
@@ -206,6 +211,8 @@ function resetSerialState() {
     clearTimeout(handshakeRetryTimer);
     handshakeRetryTimer = null;
   }
+  connectionStartTime = null;
+  heartbeatCalculationEnabled = false;
 }
 
 function scheduleHandshakeRetry() {
@@ -416,6 +423,7 @@ function connectToPort(portPath) {
       console.log(`Serial port ${portPath} open`);
       console.log('Chords binary bridge ready');
       isConnected = true;
+      connectionStartTime = Date.now();
 
       broadcast({
         type: 'connection-status',
@@ -423,6 +431,12 @@ function connectToPort(portPath) {
         port: portPath,
         message: 'Connected successfully'
       });
+
+      // Enable heartbeat calculation after 4 seconds
+      setTimeout(() => {
+        heartbeatCalculationEnabled = true;
+        console.log('Heartbeat calculation enabled after 4 seconds');
+      }, 4000);
 
       handshakeStage = 'awaiting-board';
       scheduleHandshakeRetry();

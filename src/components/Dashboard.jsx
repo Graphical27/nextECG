@@ -96,7 +96,7 @@ function Dashboard() {
       <Header />
       
       {/* Main Content */}
-      <main className="container mx-auto p-6 pb-12">
+      <main className="container mx-auto px-6 pt-32 pb-12">
         {/* Top Section - Patient Info & Quick Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="lg:col-span-2">

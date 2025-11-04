@@ -57,7 +57,7 @@ const PostSurgeryRecovery = () => {
     <div className="min-h-screen relative overflow-hidden" style={{ background: theme.primary }}>
       <BackgroundAnimation />
       
-      <div className="relative z-10 container mx-auto p-6 pb-12 max-w-7xl">
+      <div className="relative z-10 container mx-auto px-6 pt-32 pb-12 max-w-7xl">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <button 
